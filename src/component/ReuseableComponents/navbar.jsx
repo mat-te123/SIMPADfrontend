@@ -32,8 +32,12 @@ function Navbar({ title, isSearchbar, SearchData }) {
     const fetchMahasiswaName = async () => {
       if (User) {
         try {
-          const result = await AccountInfo.getUserById(User);
-          setMahasiswaName(result.username);
+          const userId =
+            typeof User === "object" ? User.user_id || User.id : User;
+          const result = await AccountInfo.getUserById(userId);
+          if (result && result.username) {
+            setMahasiswaName(result.username);
+          }
         } catch (error) {
           console.error("Error fetching Mahasiswa name:", error);
         }
@@ -67,13 +71,13 @@ function Navbar({ title, isSearchbar, SearchData }) {
       if (firstItem.hasOwnProperty("user_id")) {
         // Search Mahasiswa by Username
         const results = SearchData.filter((item) =>
-          item.username?.toLowerCase().includes(term.toLowerCase())
+          item.username?.toLowerCase().includes(term.toLowerCase()),
         );
         setSearchResults(results);
       } else if (firstItem.hasOwnProperty("project_id")) {
         // Search Project by Title
         const results = SearchData.filter((item) =>
-          item.title?.toLowerCase().includes(term.toLowerCase())
+          item.title?.toLowerCase().includes(term.toLowerCase()),
         );
         setSearchResults(results);
       }
@@ -128,8 +132,8 @@ function Navbar({ title, isSearchbar, SearchData }) {
                               item.cover_image_url
                                 ? `${backendurl}storage/${item.cover_image_url}`
                                 : item.profile_picture
-                                ? `${backendurl}storage/${item.profile_picture}`
-                                : "/PlaceHolder.svg"
+                                  ? `${backendurl}storage/${item.profile_picture}`
+                                  : "/PlaceHolder.svg"
                             }
                             alt={item.title || item.username}
                             className="w-8 h-8 rounded object-cover"
@@ -211,19 +215,23 @@ function Navbar({ title, isSearchbar, SearchData }) {
                   <DropdownItem
                     key="profile"
                     className="font-bold text-[#044645]"
-                    description={isAdmin? "View Dashboard" : "View user profile"}
-                    color="primary"
-                    onPress={() =>
-                      navigate(
-                        isAdmin ? "/admin/dashboard" : `/Mahasiswa/${User}`
-                      )
+                    description={
+                      isAdmin ? "View Dashboard" : "View user profile"
                     }
+                    color="primary"
+                    onPress={() => {
+                      const userId =
+                        typeof User === "object" ? User?.user_id : User;
+                      navigate(
+                        isAdmin ? "/admin/dashboard" : `/Mahasiswa/${userId}`,
+                      );
+                    }}
                   >
                     {isAdmin
                       ? `${MahasiswaName}(admin)`
                       : MahasiswaName
-                      ? ` ${MahasiswaName}`
-                      : "Profile"}
+                        ? ` ${MahasiswaName}`
+                        : "Profile"}
                   </DropdownItem>
                 </DropdownSection>
                 <DropdownSection>

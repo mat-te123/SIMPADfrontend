@@ -24,7 +24,7 @@ import MainTemplate from "../Template/MainTemplate";
 import { useAuth } from "../../context/AuthContext";
 
 function EditProject() {
-  const {isOpen, onOpen, onOpenChange} = useDisclosure()
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { User } = useAuth();
   console.log("User ID from params:", User);
   const navigate = useNavigate();
@@ -40,8 +40,10 @@ function EditProject() {
   const [TeamData, setTeamData] = useState([]);
   const [TeamName, setTeamName] = useState("");
   console.log("Team Name in EditProject:", TeamName);
+  // Extract user_id from User object or use as-is if string/number
+  const userId = typeof User === "object" ? User?.user_id : User;
   const ProjectManajerData = {
-    user_id: Number(User),
+    user_id: parseInt(userId),
     role: "Project Manager",
   };
   const location = useLocation();
@@ -77,7 +79,6 @@ function EditProject() {
   }, [editdata]);
 
   console.log("Mahasiswa Project Data State:", MahasiswaProjectData);
-
 
   const HandleSubmit = () => {
     const formData = new FormData();
@@ -127,7 +128,7 @@ function EditProject() {
 
     formData.append(
       "youtube_video_url",
-      MahasiswaProjectData.youtube_video_url
+      MahasiswaProjectData.youtube_video_url,
     );
 
     if (projectYearFromState) {
@@ -150,24 +151,27 @@ function EditProject() {
     console.log("cover_image_url:", MahasiswaProjectData.cover_image_url);
     console.log(
       "cover_image_url:",
-      typeof MahasiswaProjectData.cover_image_url
+      typeof MahasiswaProjectData.cover_image_url,
     );
     const DataObjects = Object.fromEntries(formData.entries());
     console.log("Data Objects:", DataObjects);
 
     AccountInfo.CreateProject(User, formData)
-  .then((response) => {
-    // Assuming response is truthy on success
-    console.log("Project created successfully:", response);
-    navigate(`/Mahasiswa/${User}`);
-  })
-  .catch((error) => {
-    // Extract the exact message from Laravel
-    const serverMessage = error.response?.data?.message || error.message || "Unknown Error";
-    
-    setErrortitle("Failed to create project");
-    setErrordesc(serverMessage);
-  });
+      .then((response) => {
+        // Assuming response is truthy on success
+        console.log("Project created successfully:", response);
+        const userId = typeof User === "object" ? User?.user_id : User;
+        console.log("Navigating to user profile:", userId);
+        navigate(`/Mahasiswa/${userId}`);
+      })
+      .catch((error) => {
+        // Extract the exact message from Laravel
+        const serverMessage =
+          error.response?.data?.message || error.message || "Unknown Error";
+
+        setErrortitle("Failed to create project");
+        setErrordesc(serverMessage);
+      });
   };
 
   const HandleUpdate = () => {
@@ -206,7 +210,7 @@ function EditProject() {
 
     formData.append(
       "youtube_video_url",
-      MahasiswaProjectData.youtube_video_url
+      MahasiswaProjectData.youtube_video_url,
     );
 
     formData.append("team_name", TeamName);
@@ -218,7 +222,7 @@ function EditProject() {
     console.log("cover_image_url:", MahasiswaProjectData.cover_image_url);
     console.log(
       "cover_image_url:",
-      typeof MahasiswaProjectData.cover_image_url
+      typeof MahasiswaProjectData.cover_image_url,
     );
     const DataObjects = Object.fromEntries(formData.entries());
     console.log("Data Objects Update:", DataObjects);
@@ -226,7 +230,8 @@ function EditProject() {
     AccountInfo.UpdateProject(editdata.id, formData).then((response) => {
       if (response) {
         console.log("Project updated successfully:", response);
-        navigate(`/Mahasiswa/${User}`);
+        const userId = typeof User === "object" ? User?.user_id : User;
+        navigate(`/Mahasiswa/${userId}`);
       } else {
         console.error("Failed to update project.");
       }
@@ -237,7 +242,8 @@ function EditProject() {
     AccountInfo.DeleteProject(editdata.id).then((response) => {
       if (response) {
         console.log("Project deleted successfully:", response);
-        navigate(`/Mahasiswa/${User}`);
+        const userId = typeof User === "object" ? User?.user_id : User;
+        navigate(`/Mahasiswa/${userId}`);
       } else {
         console.error("Failed to delete project.");
       }
@@ -272,52 +278,60 @@ function EditProject() {
                 </Button>
               ) : (
                 <>
-                <Button
-                  onPress={onOpen}
-                  className="bg-[#DBE7E8] border-1 border-[#044645] text-Black"
-                >
-                  Delete Project
-                </Button>
-                <Modal isOpen={isOpen} onOpenChange={onOpenChange} shouldBlockScroll={false}>
-                  <ModalContent>
-                    { (onClose) => (
-                      <>
-                      <ModalHeader>
-                      <h1 className="text-2xl font-bold">Confirm Deletion</h1>
-                    </ModalHeader>
-                    <ModalBody>
-                      <p>Are you sure you want to delete this project? This action cannot be undone.</p>
-                    </ModalBody>
-                    <ModalFooter>
-                      <div className="flex justify-end gap-4">
-                        <Button
-                          variant="bordered"
-                          onPress={onClose}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          className="bg-[#FF4D4F] border-1 border-[#FF4D4F] text-white"
-                          onPress={() => {
-                            HandleDelete();
-                            document.querySelector('button[aria-label="Close"]').click();
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </ModalFooter>
-                    </>
-                    )}
-                  </ModalContent>
-                </Modal>
-                <Button
-                  onPress={HandleUpdate}
-                  className="bg-[#017777] border-1 border-[#044645] text-white"
-                >
-                  Edit Project
-                </Button>
-              </>
+                  <Button
+                    onPress={onOpen}
+                    className="bg-[#DBE7E8] border-1 border-[#044645] text-Black"
+                  >
+                    Delete Project
+                  </Button>
+                  <Modal
+                    isOpen={isOpen}
+                    onOpenChange={onOpenChange}
+                    shouldBlockScroll={false}
+                  >
+                    <ModalContent>
+                      {(onClose) => (
+                        <>
+                          <ModalHeader>
+                            <h1 className="text-2xl font-bold">
+                              Confirm Deletion
+                            </h1>
+                          </ModalHeader>
+                          <ModalBody>
+                            <p>
+                              Are you sure you want to delete this project? This
+                              action cannot be undone.
+                            </p>
+                          </ModalBody>
+                          <ModalFooter>
+                            <div className="flex justify-end gap-4">
+                              <Button variant="bordered" onPress={onClose}>
+                                Cancel
+                              </Button>
+                              <Button
+                                className="bg-[#FF4D4F] border-1 border-[#FF4D4F] text-white"
+                                onPress={() => {
+                                  HandleDelete();
+                                  document
+                                    .querySelector('button[aria-label="Close"]')
+                                    .click();
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </ModalFooter>
+                        </>
+                      )}
+                    </ModalContent>
+                  </Modal>
+                  <Button
+                    onPress={HandleUpdate}
+                    className="bg-[#017777] border-1 border-[#044645] text-white"
+                  >
+                    Edit Project
+                  </Button>
+                </>
               )}
             </div>
           </div>

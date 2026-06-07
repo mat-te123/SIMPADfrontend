@@ -32,11 +32,9 @@ function UserProjectPage() {
   const [errordesc, setErrordesc] = useState(null);
 
   const ArrowRight = "/arrow-right.svg";
-
   const icon = "/ProjectIcon.svg";
 
   // API data
-
   useEffect(() => {
     async function fetchProjectData() {
       try {
@@ -47,10 +45,9 @@ function UserProjectPage() {
       }
     }
     fetchProjectData();
-  }, []);
+  }, [id]);
 
   // Bagian Komentar
-
   const fetchComments = async (isRefetching = false) => {
     try {
       if (!isRefetching) setLoadingComments(true); // Only show loader on initial load
@@ -60,12 +57,12 @@ function UserProjectPage() {
     } catch (error) {
       console.error("Error fetching comments:", error);
     } finally {
-      setLoadingComments(false);
+      loadingComments(false);
     }
   };
 
   // 2. Update the Submit Handler
-  const CommentHandleSummit = async () =>{
+  const CommentHandleSummit = async () => {
     if (!User) {
       setErrortitle("Login Required");
       setErrordesc("You must be logged in to post a comment.");
@@ -97,7 +94,6 @@ function UserProjectPage() {
       console.error("Failed to post comment:", error);
       setErrortitle("Failed to post comment.");
       setErrordesc("An error occurred while posting your comment.");
-      // Optional: Add a toast notification here for error
     } finally {
       setLoadingSubmit(false); // Re-enable button
     }
@@ -147,23 +143,22 @@ function UserProjectPage() {
   }
 
   console.log("Full Data:", Data);
-  const ProjectData = Data.project;
-  const UserData = Data.users;
+  
+  // FIX: Mengantisipasi jika data berupa wrapper '.project' atau langsung objek project-nya
+  const ProjectData = Data?.project || Data;
+  const UserData = Data?.users || ProjectData?.users || [];
+  
   console.log("Project Data:", ProjectData);
   console.log("User Data:", UserData);
-  const manager = UserData.find((user) => user.role === "Project Manager");
+  
+  const manager = UserData?.find((user) => user.role === "Project Manager");
 
-  const VideoSource = ProjectData
-    ? ProjectData.youtube_video_url
-      ? `https://www.youtube.com/embed/${extractYouTubeID(
-          ProjectData.youtube_video_url
-        )}`
-      : ""
+  const VideoSource = ProjectData?.youtube_video_url
+    ? `https://www.youtube.com/embed/${extractYouTubeID(ProjectData.youtube_video_url)}`
     : "";
-  const ImageSource = ProjectData
-    ? ProjectData.cover_image_url
-      ? `${backendUrl}storage/${ProjectData.cover_image_url}`
-      : ""
+    
+  const ImageSource = ProjectData?.cover_image_url
+    ? `${backendUrl}storage/${ProjectData.cover_image_url}`
     : "";
 
   return (
@@ -171,9 +166,9 @@ function UserProjectPage() {
       <div className="flex flex-col bg-white py-20 px-100 gap-10">
         {/* Judul Project */}
         <h1 className="text-[70px] font-bold">
-          {/* Placement sementara belum dihubungin ke database */}
           {ProjectData ? ProjectData.title : "Project Title"}
         </h1>
+        
         {/* Bagian Content Project */}
         <div className="flex flex-col items-start justify-start gap-20">
           {/* Header Project */}
@@ -181,7 +176,6 @@ function UserProjectPage() {
             {/* Bagian kiri */}
             <div className="flex flex-row justify-start items-center gap-3">
               <img src={icon} alt="UserIcon" />
-              {/* Placeholder sementara sebelum database */}
               <span>
                 {manager ? manager.username : "Project Manager Name"} team
               </span>
@@ -192,13 +186,16 @@ function UserProjectPage() {
                 className="bg-[#017777] text-white "
                 endContent={<img src={ArrowRight} alt="IconButton" />}
                 onPress={() => {
-                  navigate("/Mahasiswa/" + manager.user_id);
+                  if (manager?.user_id) {
+                    navigate("/Mahasiswa/" + manager.user_id);
+                  }
                 }}
               >
                 Get To Know
               </Button>
             </div>
           </div>
+          
           {/* Gambar Project */}
           <div className="w-full h-[600px] bg-gray-500 flex items-center justify-center overflow-hidden">
             {ImageSource === "" ? (
@@ -211,12 +208,12 @@ function UserProjectPage() {
               />
             )}
           </div>
+          
           {/* Penjelasan Project */}
           <p>
-            {ProjectData
-              ? ProjectData.description
-              : "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod."}
+            {ProjectData?.description || "Lorem ipsum dolor sit amet consectetur adipisicing elit."}
           </p>
+          
           {/* video Project */}
           <div className="w-full h-[600px] bg-gray-500 flex items-center justify-center rounded-4xl mt-10">
             {VideoSource === "" ? (
@@ -231,24 +228,27 @@ function UserProjectPage() {
               />
             )}
           </div>
+          
           {/* bagian team */}
           <div className="bg-[#FBFBFB] border-1 border-[#E6E6E6] rounded-2xl p-10 flex flex-col w-full gap-10">
             <h1 className="text-[#017777] text-4xl font-bold w-full text-center">
-              {/* Placement Sebelum Database */}
+              {/* FIX: Menggunakan Optional Chaining (?.) agar tidak crash */}
               {`About ${
-                ProjectData.team_name
+                ProjectData?.team_name
                   ? ProjectData.team_name + " team"
-                  : `${manager.username}'s team`
+                  : manager?.username
+                    ? `${manager.username}'s team`
+                    : "the team"
               }`}
             </h1>
+            
             {/* Row team */}
             <div className="grid grid-cols-4 gap-10 w-full">
-              {/* Ini ngemap dari data JSON Backend */}
               {UserData &&
                 UserData.map((user, index) => (
                   <TeamCard
                     key={index}
-                    UserID = {user.user_id}
+                    UserID={user.user_id}
                     ProfilePic={
                       user.profile_picture
                         ? `${backendUrl}storage/${user.profile_picture}`
@@ -261,9 +261,9 @@ function UserProjectPage() {
             </div>
           </div>
         </div>
+        
         {/* Bagian Comment */}
         <div className="bg-white border-1 border-[#E6EDED] px-10 pt-10 pb-50 rounded-3xl flex flex-col gap-5 shadow-lg">
-          {/* Comment inser section */}
           <div className="flex flex-col ">
             <div className="flex flex-row gap-5 items-center justify-start">
               <img
@@ -282,34 +282,33 @@ function UserProjectPage() {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={4}
-                isDisabled={User?false:true}
+                isDisabled={!User}
               />
               <Button
                 className="bg-[#017777] text-white border-1 border-[#044645]"
                 radius="full"
-                onPress={CommentHandleSummit} // Calls the updated function
-                isLoading={LoadingSubmit} // Use UI library loading prop if available
+                onPress={CommentHandleSummit}
+                isLoading={LoadingSubmit}
               >
                 {LoadingSubmit ? "Posting..." : "Comment"}
               </Button>
             </div>
           </div>
+          
           {/* Comment List Section */}
           <div className="flex flex-col">
             {LoadingComments ? (
               <p>Loading comments...</p>
             ) : commentsList && commentsList.length > 0 ? (
               commentsList.map((commentItem, index) => (
-                // Hitung waktu komentar dibuat
-                // const projecttTime = timeAgo(commentItem.created_at);
                 <div key={index} className="mb-5">
                   <Comment
                     id={commentItem.comment_id}
                     usersessionid={User}
-                    usercommentid={commentItem.user.user_id}
-                    username={commentItem.user.username}
+                    usercommentid={commentItem?.user?.user_id}
+                    username={commentItem?.user?.username || "Anonymous"}
                     photoProfile={
-                      commentItem.user.profile_picture
+                      commentItem?.user?.profile_picture
                         ? `${backendUrl}storage/${commentItem.user.profile_picture}`
                         : "/PlaceHolder.svg"
                     }
@@ -324,11 +323,11 @@ function UserProjectPage() {
           </div>
         </div>
       </div>
+      
       {/* Bagian Alert */}
       <AnimatePresence>
         {errortitle && errordesc && (
           <motion.div
-            // initial State
             initial={{ opacity: 0, y: -50, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: -50, x: "-50%" }}
