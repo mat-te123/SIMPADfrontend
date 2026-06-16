@@ -11,13 +11,6 @@
     "created_at": "2026-02-01T10:00:00Z",
     "updated_at": "2026-02-25T16:30:00Z",
     "users": [
-      {
-        "user_id": 2,
-        "username": "Siti Aminah",
-        "pivot": {
-          "role": "Project Manager"
-        }
-      }
     ]
   },
   {
@@ -33,11 +26,6 @@
     "updated_at": "2025-11-30T11:05:22Z",
     "users": [
       {
-        "user_id": 3,
-        "username": "Rainard",
-        "pivot": {
-          "role": "Project Manager"
-        }
       }
     ]
   },
@@ -87,13 +75,6 @@
         "pivot": {
           "role": "UI/UX Designer"
         }
-      },
-      {
-        "user_id": 6,
-        "username": "Nadia Putri",
-        "pivot": {
-          "role": "Developer"
-        }
       }
     ]
   },
@@ -109,13 +90,6 @@
     "created_at": "2025-09-10T11:00:00Z",
     "updated_at": "2026-01-15T15:45:00Z",
     "users": [
-      {
-        "user_id": 6,
-        "username": "Nadia Putri",
-        "pivot": {
-          "role": "Mobile Developer"
-        }
-      },
       {
         "user_id": 5,
         "username": "Ahmad Rizki",
@@ -137,13 +111,6 @@
     "created_at": "2026-02-10T13:20:00Z",
     "updated_at": "2026-02-28T10:30:00Z",
     "users": [
-      {
-        "user_id": 3,
-        "username": "Rainard",
-        "pivot": {
-          "role": "QA Engineer"
-        }
-      }
     ]
   },
   {
