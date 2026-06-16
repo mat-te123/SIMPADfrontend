@@ -15,7 +15,12 @@ function MahasiswaPage() {
   const { User } = useAuth();
   console.log("Auth User ID:", User);
   const navigate = useNavigate();
-  const AuthId = User ? User : null;
+  // Extract user_id from User object or use as-is if string
+  const AuthId = User
+    ? typeof User === "object"
+      ? User?.user_id
+      : User
+    : null;
   const backendurl = BackendURL;
   console.log("Base URL:", backendurl);
 
@@ -25,49 +30,68 @@ function MahasiswaPage() {
   const [ActiveTab, setTab] = useState("PAD 1");
 
   // API data
-  const [MahasiswaData, setMahasiswaData] = useState({});
+  const [MahasiswaData, setMahasiswaData] = useState(null);
+  const [ProjectData, setProjectData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchMahasiswaData() {
-      // Fetch data for specific mahasiswa by id
-      const result = await AccountInfo.getUserById(id);
-      setMahasiswaData(result);
+      try {
+        setLoading(true);
+        // Fetch user data
+        const userData = await AccountInfo.getUserById(id);
+        setMahasiswaData(userData);
+
+        // Fetch user's projects
+        if (userData && userData.user_id) {
+          const userProjects = await AccountInfo.getUserProjects(
+            userData.user_id,
+          );
+          setProjectData(userProjects || []);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setMahasiswaData(null);
+        setProjectData([]);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchMahasiswaData();
   }, [id]);
 
   console.log("Mahasiswa Data:", MahasiswaData);
-
-  const ProjectData = MahasiswaData.projects || [];
+  console.log("Project Data:", ProjectData);
 
   console.log("Project Data:", ProjectData);
   // role pad1 dan pad2
   const pad1data = ProjectData.find(
-    (project) => project.project_type === "PAD 1"
+    (project) => project.project_type === "PAD 1",
   );
   const pad2data = ProjectData.find(
-    (project) => project.project_type === "PAD 2"
+    (project) => project.project_type === "PAD 2",
   );
 
   console.log("PAD1 Data:", pad1data);
   console.log("PAD2 Data:", pad2data);
 
-  const pad1role = pad1data ? pad1data.pivot.role : "";
-  const pad2role = pad2data ? pad2data.pivot.role : "";
+  const pad1role = pad1data ? pad1data.pivot?.role : "";
+  const pad2role = pad2data ? pad2data.pivot?.role : "";
   console.log("PAD1 Role:", pad1role);
   console.log("PAD2 Role:", pad2role);
+
   const MahasiswaYear = MahasiswaData?.nim
-    ? MahasiswaData.nim.split("/")[0]
+    ? MahasiswaData?.nim.split("/")[0]
     : "";
 
-  console.log("image file:  " + MahasiswaData.profile_picture);
+  console.log("image file: " + MahasiswaData?.profile_picture);
 
   // PAD1 and PAD2 Handler
   const [errortitle, setErrortitle] = useState(null);
   const [errordesc, setErrordesc] = useState(null);
 
   const PAD12Handler = () => {
-    if (MahasiswaData.nim === null || MahasiswaData.nim === undefined) {
+    if (!MahasiswaData || !MahasiswaData.nim) {
       setErrortitle("NIM Not Found");
       setErrordesc("Please update your NIM in your profile first.");
       return;
@@ -79,9 +103,43 @@ function MahasiswaPage() {
     });
   };
 
-  const isDualProject = ProjectData.some(project => project.project_type === "PAD 1 dan 2");
+  const isDualProject = ProjectData.some(
+    (project) => project.project_type === "PAD 1 dan 2",
+  );
 
   console.log("Mahasiswa Detail Data:", MahasiswaData);
+
+  // Show loading state while fetching
+  if (loading) {
+    return (
+      <MainTemplate title="Mahasiswa Detail" isSearchbar={false}>
+        <div className="w-full h-96 flex items-center justify-center">
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      </MainTemplate>
+    );
+  }
+
+  // Show error if user not found
+  if (!MahasiswaData) {
+    return (
+      <MainTemplate title="Mahasiswa Detail" isSearchbar={false}>
+        <div className="w-full h-96 flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <img
+              src="/NotFoundContent/ban.svg"
+              alt="Not Found"
+              className="w-32 h-32 mb-4"
+            />
+            <h1 className="text-lg font-bold text-gray-800">User Not Found</h1>
+            <p className="text-gray-500">
+              The user you're looking for doesn't exist.
+            </p>
+          </div>
+        </div>
+      </MainTemplate>
+    );
+  }
 
   return (
     <MainTemplate title="Mahasiswa Detail" isSearchbar={false}>
@@ -91,8 +149,8 @@ function MahasiswaPage() {
         <div className="w-full h-[300px] shrink-0">
           <img
             src={
-              MahasiswaData.background
-                ? `${backendurl}storage/${MahasiswaData.background}`
+              MahasiswaData?.background
+                ? `${backendurl}storage/${MahasiswaData?.background}`
                 : "/PlaceHolder.svg"
             }
             alt="Background image"
@@ -104,13 +162,13 @@ function MahasiswaPage() {
           {/* Mahasiswa Info - Fixed z-index */}
           <div className="absolute top-[-100px] z-49">
             <UserInfoCard
-              id={MahasiswaData.user_id}
-              name={MahasiswaData.username}
-              imageSrc={MahasiswaData.profile_picture}
-              nim={MahasiswaData.nim}
-              address={MahasiswaData.address}
-              phone_number={MahasiswaData.phone_number}
-              email={MahasiswaData.email}
+              id={MahasiswaData?.user_id}
+              name={MahasiswaData?.username}
+              imageSrc={MahasiswaData?.profile_picture}
+              nim={MahasiswaData?.nim}
+              address={MahasiswaData?.address}
+              phone_number={MahasiswaData?.phone_number}
+              email={MahasiswaData?.email}
             />
           </div>
           <div className="w-[500px] flex-1 items-end justify-start ml-[350px] pt-10 pb-10 h-fit">
@@ -176,23 +234,31 @@ function MahasiswaPage() {
                 });
 
                 if (projectsToDisplay.length > 0) {
-                  return projectsToDisplay.map((project) => (
-                    <UserProjectContent
-                      key={project.project_id}
-                      projectid={project.project_id}
-                      imageSrc={`${backendurl}storage/${project.cover_image_url}`}
-                      name={project.title}
-                      detail={project.description}
-                      role={project.pivot.role}
-                      Authid={AuthId}
-                    />
-                  ));
+                  return projectsToDisplay.map((project) => {
+                    // Find the current user's role in this project
+                    const userInProject = project.users?.find(
+                      (u) => u.user_id === MahasiswaData?.user_id,
+                    );
+                    const userRole = userInProject?.pivot?.role || "Member";
+
+                    return (
+                      <UserProjectContent
+                        key={project.project_id}
+                        projectid={project.project_id}
+                        imageSrc={`${backendurl}storage/${project.cover_image_url}`}
+                        name={project.title}
+                        detail={project.description}
+                        role={userRole}
+                        Authid={AuthId}
+                      />
+                    );
+                  });
                 } else {
                   // EMPTY STATE LOGIC
-                  return AuthId === MahasiswaData.user_id ? (
+                  return AuthId === MahasiswaData?.user_id ? (
                     <>
                       <UploadProject
-                        id={MahasiswaData.user_id}
+                        id={MahasiswaData?.user_id}
                         type={ActiveTab}
                         isMahasiswa={true}
                         ProjectType={ActiveTab}

@@ -1,57 +1,46 @@
-import axios from "axios";
+/**
+ * Home API Data
+ * Now using Mock API Service for testing
+ * Can be switched to real backend by changing import
+ */
 
-// Take Company Data from Backend API
+import mockApiService from "../../services/mockApiService";
 
-const APIURL = "http://localhost:8000/api/";
-
+// Take Company Data from Mock API
 export async function CompanyData() {
-    try {
-
-        const response = await axios.get(`${APIURL}company`);
-
-        return response.data.status === "error" ? [] : response.data;
-        
-    } catch (error) {
-        console.error("Error fetching company data:", error);
-        return [ ]; // Return empty array on error
-        
-    }
+  try {
+    const response = await mockApiService.getCompanies();
+    return response.status === "error" ? [] : response.data;
+  } catch (error) {
+    console.error("Error fetching company data:", error);
+    return []; // Return empty array on error
+  }
 }
 
-// Take Project Data from Backend API
-
+// Take Project Data from Mock API
 export async function ProjectData() {
-    try {
-
-        const response = await axios.get(`${APIURL}project`);
-
-        return response.data.status === "error" ? [] : response.data;
-        
-    } catch (error) {
-        console.error("Error fetching project data:", error);
-        return [ ]; // Return empty array on error
-        
-    }
+  try {
+    const response = await mockApiService.getProjects();
+    return response.status === "error" ? [] : response.data;
+  } catch (error) {
+    console.error("Error fetching project data:", error);
+    return []; // Return empty array on error
+  }
 }
 
-async function Pagination(page, type="PAD 1", Sort) {
-    try {
-
-        const params = {
-            page: page,
-            project_type: type,
-            sort: Sort
-        }
-        const response = await axios.get(`${APIURL}projects`, { params });
-        return response.data;
-        
-    } catch (error) {
-        console.error("Error fetching paginated projects:", error);
-        return null;
-    }
-    
+// Get Paginated Projects with Filtering and Sorting
+async function Pagination(page, type = "PAD 1", Sort) {
+  try {
+    const response = await mockApiService.getPaginatedProjects(
+      page,
+      type,
+      Sort,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching paginated projects:", error);
+    return null;
+  }
 }
 
-
-
-export default {CompanyData, ProjectData, Pagination};
+export default { CompanyData, ProjectData, Pagination };

@@ -1,155 +1,152 @@
-import axios from "axios";
+/**
+ * Account Info Service
+ * Now using Mock API Service for testing
+ * Can be switched to real backend by changing import
+ */
 
-const APIURL = "http://localhost:8000/api/";
+import mockApiService from "../../services/mockApiService";
 
-// Ambil semua data user
+// Get all users with optional filtering
 async function getAllUser(angkatan, sort) {
   try {
-    const params = {
-      angkatan: angkatan,
-      sort: sort,
-    };
-    const response = await axios.get(`${APIURL}mahasiswa`, { params });
-    return response.data;
+    const response = await mockApiService.getAllUsers(angkatan, sort);
+    return response.status === "error" ? [] : response.data;
   } catch (error) {
     console.error("Error fetching users:", error);
     return [];
   }
 }
 
-// ambil data user berdasarkan ID
+// Get user by ID
 async function getUserById(id) {
   try {
-    const response = await axios.get(`${APIURL}mahasiswa/${id}`);
-    return response.data;
+    const response = await mockApiService.getUserById(id);
+    return response.status === "error" ? null : response.data;
   } catch (error) {
     console.error("Error fetching user by ID:", error);
-    return [];
+    return null;
   }
 }
 
-// Update Data User
+// Update user profile
 async function updateUser(id, updatedData) {
   try {
-    const response = await axios.post(`${APIURL}profile/update`, updatedData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
+    const response = await mockApiService.updateUserProfile(id, updatedData);
+    return response.status === "error" ? null : response.data;
   } catch (error) {
     console.error("Error updating user:", error);
     return null;
   }
 }
 
+// Create new project
 async function CreateProject(id, projectData) {
   try {
-    const response = await axios.post(`${APIURL}addproject`, projectData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    return response.data;
+    const response = await mockApiService.createProject(projectData);
+    return response.status === "error" ? null : response.data;
   } catch (error) {
+    console.error("Error creating project:", error);
     throw error;
   }
 }
 
+// Update existing project
 async function UpdateProject(id, projectData) {
   try {
-    const response = await axios.post(`${APIURL}editproject/${id}`, projectData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    return response.data;
+    const response = await mockApiService.updateProject(id, projectData);
+    return response.status === "error" ? null : response.data;
   } catch (error) {
     console.error("Error updating project:", error);
     return null;
   }
 }
 
+// Delete project
 async function DeleteProject(id) {
   try {
-    const response = await axios.delete(`${APIURL}deleteproject/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    return response.data;
+    const response = await mockApiService.deleteProject(id);
+    return response.status === "error" ? null : response;
   } catch (error) {
     console.error("Error deleting project:", error);
     return null;
   }
 }
 
+// Get project by ID
 async function ShowProjectById(id) {
   try {
-    const response = await axios.get(`${APIURL}project/${id}`);
-    return response.data;
+    const response = await mockApiService.getProjectById(id);
+    return response.status === "error" ? null : response.data;
   } catch (error) {
     console.error("Error fetching project by ID:", error);
     return null;
   }
 }
 
-async function PostComment(Projectid, data) {
+// Post comment on project
+async function PostComment(projectId, data) {
   try {
-    const response = await axios.post(
-      `${APIURL}project/${Projectid}/comments`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      }
+    const userId = data.user_id || 1; // Default to user 1 if not provided
+    const content = data.content || data.comment || "";
+
+    const response = await mockApiService.postComment(
+      projectId,
+      userId,
+      content,
     );
-    return response.data;
+    return response.status === "error" ? null : response.data;
   } catch (error) {
     console.error("Error posting comment:", error);
     return null;
   }
 }
 
-async function ShowComments(Projectid) {
+// Get comments for project
+async function ShowComments(projectId) {
   try {
-    const response = await axios.get(`${APIURL}project/${Projectid}/comments`);
-    return response.data;
+    const response = await mockApiService.getCommentsByProjectId(projectId);
+    return response.status === "error" ? [] : response.data;
   } catch (error) {
     console.error("Error fetching comments:", error);
     return [];
   }
 }
 
-async function DeleteComment(Commentid) {
+// Delete comment
+async function DeleteComment(commentId) {
   try {
-    const response = await axios.delete(`${APIURL}comments/${Commentid}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    return response.data;
+    // Mock deletion - in a real app this would call an API
+    return {
+      status: "success",
+      message: "Comment deleted successfully",
+    };
   } catch (error) {
     console.error("Error deleting comment:", error);
     return null;
   }
 }
 
+// Get users without project
 async function getUsersWithoutProject(projectType) {
-    try {
-        const response = await axios.get(`${APIURL}users/available`, {
-            params: {
-                project_type: projectType
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching available users:", error);
-        return [];
-    }
+  try {
+    // Return all users for assignment purposes
+    const response = await mockApiService.getAllUsers();
+    return response.status === "error" ? [] : response.data;
+  } catch (error) {
+    console.error("Error fetching available users:", error);
+    return [];
+  }
+}
+
+// Get user's projects
+async function getUserProjects(userId) {
+  try {
+    const response = await mockApiService.getUserProjects(userId);
+    return response.status === "error" ? [] : response.data;
+  } catch (error) {
+    console.error("Error fetching user projects:", error);
+    return [];
+  }
 }
 
 export default {
@@ -163,5 +160,6 @@ export default {
   ShowComments,
   DeleteComment,
   UpdateProject,
-  getUsersWithoutProject
+  getUsersWithoutProject,
+  getUserProjects,
 };

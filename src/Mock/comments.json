@@ -1,0 +1,50 @@
+[
+  {
+    "comment_id": 1,
+    "project_id": 1,
+    "user_id": 2,
+    "content": "Excellent baseline flow layout! Let's ensure the local storage functions validate seamlessly before next peer evaluation.",
+    "created_at": "2026-02-26T03:40:12Z",
+    "updated_at": "2026-02-26T03:40:12Z"
+  },
+  {
+    "comment_id": 2,
+    "project_id": 1,
+    "user_id": 4,
+    "content": "Great work on the UI components! The responsive design looks clean and modern.",
+    "created_at": "2026-02-27T10:15:00Z",
+    "updated_at": "2026-02-27T10:15:00Z"
+  },
+  {
+    "comment_id": 3,
+    "project_id": 3,
+    "user_id": 1,
+    "content": "The e-commerce platform redesign looks amazing! The checkout flow is very intuitive.",
+    "created_at": "2026-03-01T08:30:00Z",
+    "updated_at": "2026-03-01T08:30:00Z"
+  },
+  {
+    "comment_id": 4,
+    "project_id": 3,
+    "user_id": 6,
+    "content": "Good implementation of the payment gateway integration. Performance looks solid.",
+    "created_at": "2026-03-01T14:20:00Z",
+    "updated_at": "2026-03-01T14:20:00Z"
+  },
+  {
+    "comment_id": 5,
+    "project_id": 4,
+    "user_id": 5,
+    "content": "The AI chatbot natural language processing is impressive. How's the training dataset coming along?",
+    "created_at": "2026-02-25T16:45:00Z",
+    "updated_at": "2026-02-25T16:45:00Z"
+  },
+  {
+    "comment_id": 6,
+    "project_id": 5,
+    "user_id": 4,
+    "content": "Mobile health tracker looks fantastic! The data visualization is really helpful.",
+    "created_at": "2026-01-20T11:30:00Z",
+    "updated_at": "2026-01-20T11:30:00Z"
+  }
+]

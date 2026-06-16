@@ -1,79 +1,81 @@
-// LoginWithGoogle.jsx
-import { Alert, Button } from "@heroui/react"
-import AuthTemplate from "../Template/AuthTemplate"
-import { useState } from "react"
-import Google from '../Logic/LoginViaGoogle' // Ensure this path is correct
-import { useNavigate } from "react-router-dom"
+import { Button } from "@heroui/react";
+import AuthTemplate from "../Template/AuthTemplate";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Google from "../Logic/LoginViaGoogle"; // Double-check this path matches your folder structure
 
 function LoginWithGoogle() {
-    const navigate = useNavigate();
-    const GoogleIcon = "/logo-google.svg"
-    const HomeIcon = "/home-white.svg"
+  const navigate = useNavigate();
+  const GoogleIcon = "/logo-google.svg";
+  const HomeIcon = "/home-white.svg";
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorTitle, setErrortitle] = useState("");
-    const [errorDesc, setErrordesc] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorTitle, setErrorTitle] = useState("");
+  const [errorDesc, setErrorDesc] = useState("");
 
-    // 1. Define the callback function to handle errors coming from the logic file
-    const handleLoginError = (title, message) => {
-        setErrortitle(title);
-        setErrordesc(message);
-        setIsLoading(false); // Stop loading animation
-    };
+  // Standardized error handler to capture validation/popup failures
+  const handleLoginError = (title, message) => {
+    setErrorTitle(title);
+    setErrorDesc(message);
+    setIsLoading(false);
+  };
 
-    // 2. Pass the callback to your Logic function
-    const googlelogin = Google({ onLoginError: handleLoginError });
+  // Standardized success handler to turn off loading states before navigation
+  const handleLoginSuccess = () => {
+    setIsLoading(false);
+  };
 
-    const handleLogin = async () => {
-        // Clear previous errors
-        setErrortitle("");
-        setErrordesc("");
-        
-        setIsLoading(true);
-        googlelogin();
-        
-    };
+  // Instantiate Google OAuth passing both triggers down
+  const googlelogin = Google({
+    onLoginError: handleLoginError,
+    onLoginSuccess: handleLoginSuccess,
+  });
 
-    const handleLoginGuest = async () => {
-        setIsLoading(true);
-        setTimeout(() =>{
-            setIsLoading(false);
-            navigate('/');
-        }, 3000);
-    };
+  const handleLogin = () => {
+    setErrorTitle("");
+    setErrorDesc("");
+    setIsLoading(true);
+    googlelogin(); // Fires up the Google Popup sequence
+  };
 
-    return (
-        <AuthTemplate errorDesc={errorDesc} errorTitle={errorTitle}>
-            <div className="flex flex-col items-start justify-center gap-10 w-full h-[400px]">
-                <div>
-                    <h1 className="text-4xl font-bold">
-                        Log in
-                    </h1>
-                </div>
-                <div className="flex flex-col gap-5 w-full">
-                    <Button
-                        startContent={<img src={HomeIcon} alt="Home Icon" />}
-                        className='w-full font-bold bg-[#017777] border-1 border-[#044645] text-white hover:bg-[#025555]'
-                        variant='bordered'
-                        isLoading={isLoading}
-                        onPress={handleLoginGuest}
-                    >
-                        {isLoading ? "Loading...." : "Back to Home"}
-                    </Button>
-                    <hr />
-                    <Button
-                        startContent={<img src={GoogleIcon} alt="Google Icon" />}
-                        className='w-full font-bold bg-[#DBE8E8] border-1 border-[#044645] text-black hover:bg-[#C3D6D6]'
-                        variant='bordered'
-                        isLoading={isLoading}
-                        onPress={handleLogin}
-                    >
-                        {isLoading ? "Loading...." : "Log In with Email UGM"}
-                    </Button>
-                </div>
-            </div>
-        </AuthTemplate>
-    )
+  const handleLoginGuest = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/");
+    }, 3000);
+  };
+
+  return (
+    <AuthTemplate errorDesc={errorDesc} errorTitle={errorTitle}>
+      <div className="flex flex-col items-start justify-center gap-10 w-full h-[400px]">
+        <div>
+          <h1 className="text-4xl font-bold">Log in</h1>
+        </div>
+        <div className="flex flex-col gap-5 w-full">
+          <Button
+            startContent={<img src={HomeIcon} alt="Home Icon" />}
+            className="w-full font-bold bg-[#017777] border-1 border-[#044645] text-white hover:bg-[#025555]"
+            variant="bordered"
+            isLoading={isLoading}
+            onPress={handleLoginGuest}
+          >
+            {isLoading ? "Loading...." : "Back to Home"}
+          </Button>
+          <hr />
+          <Button
+            startContent={<img src={GoogleIcon} alt="Google Icon" />}
+            className="w-full font-bold bg-[#DBE8E8] border-1 border-[#044645] text-black hover:bg-[#C3D6D6]"
+            variant="bordered"
+            isLoading={isLoading}
+            onPress={handleLogin}
+          >
+            {isLoading ? "Loading...." : "Log In with Email UGM"}
+          </Button>
+        </div>
+      </div>
+    </AuthTemplate>
+  );
 }
 
-export default LoginWithGoogle
+export default LoginWithGoogle;

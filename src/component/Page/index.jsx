@@ -9,6 +9,9 @@ import "./index.css";
 
 import HomeApiData from "../Logic/HomeApiData";
 
+// Mock
+import ProjectDataMock from "../../Mock/projects.json";
+
 function index() {
   const Arrow = "/Arrow.svg";
   const ArrowUp = "/ArrowUp.svg";
@@ -21,17 +24,20 @@ function index() {
     }
   };
 
+  console.log("Mock Project Data:", ProjectDataMock);
+
   // API BACKEND
   // company data
   const [CompanyData, setCompanyData] = useState([]);
-
-  useEffect(() => {
-    async function fetchCompanyData() {
-      const data = await HomeApiData.CompanyData();
-      setCompanyData(data);
-    }
-    fetchCompanyData();
-  }, []);
+  
+  // API FUNTION
+  // useEffect(() => {
+  //   async function fetchCompanyData() {
+  //     const data = await HomeApiData.CompanyData();
+  //     setCompanyData(data);
+  //   }
+  //   fetchCompanyData();
+  // }, []);
 
   console.log("Company Data:", CompanyData);
 
@@ -50,41 +56,45 @@ function index() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const loadprojects = async (page, type, sort, isReplace = false) => {
-    if (loading) return; // Prevent multiple simultaneous loads
-    setLoading(true);
-    try {
-      const fixedType = type === "PAD1" ? "PAD 1" : "PAD 2";
-      const sortParam = Array.from(sort).join("").replace(/_/g, "");
 
-      const result = await HomeApiData.Pagination(page, fixedType, sortParam);
-      if (!result || !result.data || result.data.length === 0) {
-        setHasMore(false);
-        if (isReplace) {
-          setProjectData([]);
-        }
-      } else {
-        setProjectData((prevProjects) => {
-          if (isReplace) {
-            return result.data;
-          }
+  // API FUNTION
+  // const loadprojects = async (page, type, sort, isReplace = false) => {
+  //   if (loading) return; // Prevent multiple simultaneous loads
+  //   setLoading(true);
+  //   try {
+  //     const fixedType = type === "PAD1" ? "PAD 1" : "PAD 2";
+  //     const sortParam = Array.from(sort).join("").replace(/_/g, "");
 
-          return [...prevProjects, ...result.data];
-        });
+  //     const result = await HomeApiData.Pagination(page, fixedType, sortParam);
+  //     if (!result || !result.data || result.data.length === 0) {
+  //       setHasMore(false);
+  //       if (isReplace) {
+  //         setProjectData([]);
+  //       }
+  //     } else {
+  //       setProjectData((prevProjects) => {
+  //         if (isReplace) {
+  //           return result.data;
+  //         }
 
-        setHasMore(result.next_page_url !== null);
-      }
-    } catch (error) {
-      console.error("Error loading projects:", error);
-    }
-    setLoading(false);
-  };
+  //         return [...prevProjects, ...result.data];
+  //       });
 
-  useEffect(() => {
-    setHasMore(true); // Reset hasMore when page changes
-    setPage(1); // Reset to first page
-    loadprojects(1, ActiveTab, SelectedKeys, true);
-  }, [ActiveTab, SelectedKeys]);
+  //       setHasMore(result.next_page_url !== null);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error loading projects:", error);
+  //   }
+  //   setLoading(false);
+  // };
+
+
+  // API FUNTION MOCK
+  // useEffect(() => {
+  //   setHasMore(true); // Reset hasMore when page changes
+  //   setPage(1); // Reset to first page
+  //   loadprojects(1, ActiveTab, SelectedKeys, true);
+  // }, [ActiveTab, SelectedKeys]);
 
   useEffect(() => {
     if (page === 1) return; // Skip initial load since it's handled in other useEffect
@@ -194,7 +204,7 @@ function index() {
         </div>
         {/* Kontent utama termasuk */}
         <Projectcontent
-          ProjectData={ProjectData}
+          ProjectData={ProjectDataMock}
           ActiveTab={ActiveTab}
           setTab={setTab}
           SelectedKeys={SelectedKeys}
